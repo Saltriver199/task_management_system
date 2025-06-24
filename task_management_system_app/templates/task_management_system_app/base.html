@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Task Management System{% endblock %}</title>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      integrity="sha512-pVUjZxXw1QGvY2PNFcGzllxiEYHzP4CIF+uiOH+Mj3G2aG6n6HA4fKzojX49B0EJDG71HNj3pfaXGFlYsXK7ZA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <style>
+      :root {
+        --primary-color: #3498db;
+        --secondary-color: #2c3e50;
+        --accent-color: #e74c3c;
+      }
+
+      body {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        background-color: #f8f9fa;
+      }
+
+      .navbar {
+        background-color: var(--secondary-color) !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .navbar-brand {
+        font-weight: 600;
+        letter-spacing: 0.5px;
+      }
+
+      .nav-link {
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .nav-link:hover::after {
+        content: "";
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background-color: var(--primary-color);
+      }
+
+      .card-hover {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .footer {
+        background-color: var(--secondary-color);
+        margin-top: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+      <div class="container">
+        {% if user.is_superuser %}
+        <a
+          class="navbar-brand d-flex align-items-center"
+          href="{% url 'dashboard' %}"
+        >
+          <i class="fas fa-tasks fa-lg mr-2"></i>
+          <span class="d-none d-sm-inline">TaskManager</span>
+        </a>
+        {% else %}
+        <a
+          class="navbar-brand d-flex align-items-center"
+          href="{% url 'employee_dashboard' %}"
+        >
+          <i class="fas fa-tasks fa-lg mr-2"></i>
+          <span class="d-none d-sm-inline">TaskManager</span>
+        </a>
+        {% endif %}
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-toggle="collapse"
+          data-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav mr-auto">
+            {% if user.is_superuser %}
+            <li class="nav-item">
+              <a
+                class="nav-link d-flex align-items-center"
+                href="{% url 'dashboard' %}"
+              >
+                <i class="fas fa-home fa-fw mr-2"></i>
+                <span>Dashboard</span>
+              </a>
+            </li>
+            {% else %}
+            <li class="nav-item">
+              <a
+                class="nav-link d-flex align-items-center"
+                href="{% url 'employee_dashboard' %}"
+              >
+                <i class="fas fa-home fa-fw mr-2"></i>
+                <span>Dashboard</span>
+              </a>
+            </li>
+            {% endif %} {% if user.is_superuser %}
+            <li class="nav-item">
+              <a
+                class="nav-link d-flex align-items-center"
+                href="{% url 'category_list' %}"
+              >
+                <i class="fas fa-folder fa-fw mr-2"></i>
+                <span>Categories</span>
+              </a>
+            </li>
+            {% endif %} {% if user.is_superuser %}
+            <li class="nav-item">
+              <a
+                class="nav-link d-flex align-items-center"
+                href="{% url 'employee_list' %}"
+              >
+                <i class="fas fa-users fa-fw mr-2"></i>
+                <span>Employees</span>
+              </a>
+            </li>
+            {% endif %}
+            {% if user.is_superuser %}
+            <li class="nav-item">
+              <a
+                class="nav-link d-flex align-items-center"
+                href="{% url 'complain_list' %}"
+              >
+                <i class="fas fa-exclamation-circle fa-fw mr-2"></i>
+                <span>Complaints</span>
+              </a>
+            </li>
+            {% endif %}
+            {% if user.is_superuser %}
+            <li class="nav-item">
+              <a
+                class="nav-link d-flex align-items-center"
+                href="{% url 'attendance_list' %}"
+              >
+                <i class="fas fa-eye fa-fw mr-2"></i>
+                <span>View Attendance</span>
+              </a>
+            </li>
+            {% endif %}
+            {% if user.is_superuser %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'leave_review_list' %}">
+                <i class="fas fa-user-shield mr-2"></i>Manage Leaves
+              </a>
+            </li>
+            {% else %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'employee_task' %}">
+                <i class="fas fa-eye mr-2"></i>View Task
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'assigned_repairs' %}">
+                <i class="fas fa-clipboard-check mr-2"></i>View Repair
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'apply_leave' %}">
+                <i class="fas fa-history mr-2"></i>Apply Leave
+              </a>
+            </li>
+            {% endif %}
+          </ul>
+          <ul class="navbar-nav ml-auto">
+            {% if user.is_authenticated %}
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle d-flex align-items-center"
+                href="#"
+                id="userMenu"
+                data-toggle="dropdown"
+              >
+                <i class="fas fa-user-circle fa-fw mr-2"></i>
+                <span>{{ user.username }}</span>
+              </a>
+              <div class="dropdown-menu dropdown-menu-right">
+                <a class="dropdown-item" href="{% url 'password_change' %}"
+                  ><i class="fas fa-cog fa-fw mr-2"></i>Settings</a
+                >
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item text-danger" href="{% url 'logout' %}">
+                  <i class="fas fa-sign-out-alt fa-fw mr-2"></i>Logout
+                </a>
+              </div>
+            </li>
+            {% else %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'login' %}">
+                <i class="fas fa-sign-in-alt fa-fw mr-2"></i>Login
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'register' %}">
+                <i class="fas fa-user-plus fa-fw mr-2"></i>Register
+              </a>
+            </li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <main class="flex-grow-1 mt-5 pt-4">
+      <div class="container">
+        {% if messages %} {% for message in messages %}
+        <div
+          class="alert alert-dismissible fade show alert-{{ message.tags }} mt-3"
+        >
+          <i class="fas fa-info-circle mr-2"></i>{{ message }}
+          <button type="button" class="close" data-dismiss="alert">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        {% endfor %} {% endif %} {% block content %}{% endblock %}
+      </div>
+    </main>
+
+    <footer class="footer py-4 mt-4">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-4 mb-4 mb-md-0">
+            <h5 class="text-white mb-3">
+              <i class="fas fa-tasks mr-2"></i>TaskManager
+            </h5>
+            <p class="text-muted">
+              Streamline your workflow and enhance productivity with our
+              intuitive task management solution.
+            </p>
+          </div>
+          <div class="col-md-4 mb-4 mb-md-0">
+            <h5 class="text-white mb-3">Quick Links</h5>
+            <ul class="list-unstyled">
+              <li>
+                <a class="text-muted" href="{% url 'dashboard' %}">Dashboard</a>
+              </li>
+              <li>
+                <a class="text-muted" href="{% url 'category_list' %}"
+                  >Categories</a
+                >
+              </li>
+              <li>
+                <a class="text-muted" href="{% url 'employee_list' %}"
+                  >Employees</a
+                >
+              </li>
+            </ul>
+          </div>
+          <div class="col-md-4">
+            <h5 class="text-white mb-3">Contact</h5>
+            <ul class="list-unstyled">
+              <li class="text-muted">
+                <i class="fas fa-envelope mr-2"></i>support@taskmanager.com
+              </li>
+              <li class="text-muted">
+                <i class="fas fa-phone mr-2"></i>(123) 456-7890
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="border-top pt-3 mt-3 text-center">
+          <p class="text-muted mb-0">
+            &copy; {% now "Y" %} TaskManager. All rights reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        // Activate current nav link
+        const currentPath = window.location.pathname;
+        $(".navbar-nav a").each(function () {
+          if (this.href === window.location.href) {
+            $(this).addClass("active");
+            $(this).closest(".dropdown-menu").prev().addClass("active");
+          }
+        });
+
+        // Enable tooltips
+        $('[data-toggle="tooltip"]').tooltip();
+      });
+    </script>
+    <script
+      src="https://kit.fontawesome.com/your-kit-code.js"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>

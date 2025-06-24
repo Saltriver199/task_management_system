@@ -1,0 +1,102 @@
+{% extends "task_management_system_app/base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0"><i class="bi bi-tools me-2"></i> Assign Employees For Repair</h3>
+        </div>
+        <div class="card-body">
+            <form method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+
+                <div class="row g-3 mb-4">
+                    <!-- Assigned To -->
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <select class="form-select" name="assigned_to" id="assigned_to" required>
+                                <option value="">Select Employee</option>
+                                {% for emp in employees %}
+                                <option value="{{ emp.id }}">
+                                    {{ emp.user.get_full_name|default:emp.user.username }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <label for="assigned_to">Assigned To <span class="text-danger">*</span></label>
+                            <div class="invalid-feedback">
+                                Please select an employee
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Task Selection -->
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <select class="form-select" name="task" id="task">
+                                <option value="">Select Task</option>
+                                {% for t in tasks %}
+                                <option value="{{ t.id }}">{{ t.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <label for="task">Related Task</label>
+                        </div>
+                    </div>
+                </div>
+
+                 <div class="form-floating mb-4">
+                    <select class="form-select" name="department" id="department">
+                        <option value="">Select Department</option>
+                        {% for dept in departments %}
+                        <option value="{{ dept.id }}">{{ dept.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <label for="department">Department</label>
+                </div>
+
+                <!-- Location -->
+                <div class="form-floating mb-4">
+                    <input type="text" class="form-control" name="location" id="location" 
+                           placeholder="Enter location" required>
+                    <label for="location">Location <span class="text-danger">*</span></label>
+                    <div class="invalid-feedback">
+                        Please provide a location
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div class="mb-4">
+                    <label for="notes" class="form-label">Notes</label>
+                    <textarea class="form-control" name="notes" id="notes" 
+                              rows="4" placeholder="Add repair notes..."></textarea>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="d-flex justify-content-end border-top pt-4">
+                    <button type="submit" class="btn btn-primary px-4 me-3">
+                        <i class="bi bi-check-circle me-2"></i> Assign Repair
+                    </button>
+                    <a href="{% url 'complain_list' %}" class="btn btn-outline-secondary px-4">
+                        <i class="bi bi-x-circle me-2"></i>Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+<style>
+    .card {
+        border-radius: 15px;
+    }
+    .form-floating > label {
+        padding-left: 35px;
+    }
+    textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+</style>
+{% endblock %}

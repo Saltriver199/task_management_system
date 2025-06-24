@@ -1,0 +1,88 @@
+{% extends 'task_management_system_app/base.html' %}
+
+{% block title %}Add Employee{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-lg rounded-lg">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Add New Employee</h4>
+        </div>
+        <div class="card-body">
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        {{ form.username.label_tag }}
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                            <div class="text-danger small">{{ form.username.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group col-md-6">
+                        {{ form.password1.label_tag }}
+                        {{ form.password1 }}
+                        {% if form.password1.errors %}
+                            <div class="text-danger small">{{ form.password1.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    {{ form.password2.label_tag }}
+                    {{ form.password2 }}
+                    {% if form.password2.errors %}
+                        <div class="text-danger small">{{ form.password2.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="department">Department <span class="text-danger">*</span></label>
+                    <select name="department" class="form-control" required>
+                        {% for dept in departments %}
+                        <option value="{{ dept.id }}">{{ dept.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email <small class="text-muted">(optional)</small></label>
+                    <input type="email" name="email" class="form-control" placeholder="employee@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="default_category">Default Category <small class="text-muted">(optional)</small></label>
+                    <select name="default_category" class="form-control">
+                        <option value="">-- Select --</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}">{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="current_task">Current Task <small class="text-muted">(optional)</small></label>
+                    <select name="current_task" class="form-control">
+                        <option value="">-- Select --</option>
+                        {% for task in tasks %}
+                        <option value="{{ task.id }}">{{ task.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="text-right">
+                    <a href="{% url 'employee_list' %}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-success">Create Employee</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends "task_management_system_app/base.html" %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="row">
+    <div class="col-md-8 offset-md-2">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h2 class="mb-0 fs-4">Update Complaint</h2>
+        </div>
+        <div class="card-body">
+          {% if error %}
+            <div class="alert alert-danger" role="alert">
+              {{ error }}
+            </div>
+          {% endif %}
+
+          <form method="post">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+              <label for="title" class="form-label">Title</label>
+              <input type="text" class="form-control" id="title" name="title" value="{{ complain.title }}" required>
+            </div>
+            
+            <div class="mb-3">
+              <label for="description" class="form-label">Description</label>
+              <textarea class="form-control" id="description" name="description" rows="4" required>{{ complain.description }}</textarea>
+            </div>
+
+            <div class="mb-3">
+              <label for="location" class="form-label">Location</label>
+              <input type="text" class="form-control" id="location" name="location" value="{{ complain.location }}">
+            </div>
+            
+            <div class="mb-3">
+              <label for="status" class="form-label">Status</label>
+              <select class="form-select" id="status" name="status">
+                <option value="new" {% if complain.status == 'new' %}selected{% endif %}>New</option>
+                <option value="in_progress" {% if complain.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                <option value="resolved" {% if complain.status == 'resolved' %}selected{% endif %}>Resolved</option>
+                <option value="closed" {% if complain.status == 'closed' %}selected{% endif %}>Closed</option>
+              </select>
+            </div>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+              <a href="{% url 'complain_list' %}" class="btn btn-secondary me-md-2">Cancel</a>
+              <button type="submit" class="btn btn-primary">Update Complaint</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

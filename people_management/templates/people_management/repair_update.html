@@ -1,0 +1,147 @@
+{% extends "task_management_system_app/base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8 col-xl-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title mb-0">
+                        <i class="bi bi-tools me-2"></i>Update Repair
+                    </h3>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        {% if user.is_superuser %}
+                            <div class="mb-4">
+                                <label for="assigned_to" class="form-label fw-bold">
+                                    Assigned To <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select form-select-lg" name="assigned_to" id="assigned_to" required>
+                                    <option value="">Select Employee</option>
+                                    {% for emp in employees %}
+                                    <option value="{{ emp.id }}" {% if repair.assigned_to == emp %}selected{% endif %}>
+                                        {{ emp.user.get_full_name|default:emp.user.username }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <div class="form-text">Select the employee responsible for this repair</div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="task" class="form-label fw-bold">Related Task</label>
+                                <select class="form-select form-select-lg" name="task" id="task">
+                                    <option value="">Select Task (Optional)</option>
+                                    {% for t in tasks %}
+                                    <option value="{{ t.id }}" {% if repair.task == t %}selected{% endif %}>
+                                        {{ t.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="department" class="form-label fw-bold">Department</label>
+                                <select class="form-select form-select-lg" name="department" id="department">
+                                    <option value="">Select Department (Optional)</option>
+                                    {% for dept in departments %}
+                                    <option value="{{ dept.id }}" {% if repair.department == dept %}selected{% endif %}>
+                                        {{ dept.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="location" class="form-label fw-bold">Location</label>
+                                <input type="text" class="form-control form-control-lg"
+                                    name="location" id="location"
+                                    value="{{ repair.location }}"
+                                    placeholder="Enter repair location">
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="notes" class="form-label fw-bold">Work Notes</label>
+                                <textarea class="form-control form-control-lg"
+                                        name="notes" id="notes"
+                                        rows="4"
+                                        placeholder="Add detailed repair notes...">{{ repair.notes }}</textarea>
+                            </div>
+                              <div class="mb-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox"
+                                        name="is_completed" id="is_completed"
+                                        role="switch" {% if repair.is_completed %}checked{% endif %}>
+                                    <label class="form-check-label fw-bold" for="is_completed">
+                                        Mark as Completed
+                                    </label>
+                                </div>
+                            </div>
+
+                            {% else %}
+                              <div class="mb-4">
+                                    <label class="form-label fw-bold">Assigned To</label>
+                                    <select class="form-select form-select-lg" disabled>
+                                        <option>{{ repair.assigned_to.user.get_full_name|default:repair.assigned_to.user.username }}</option>
+                                    </select>
+                                    <input type="hidden" name="assigned_to" value="{{ repair.assigned_to.id }}">
+                                </div>
+
+
+                           <div class="mb-4">
+                                <label class="form-label fw-bold">Related Task</label>
+                                <select class="form-select form-select-lg" disabled>
+                                    <option>{{ repair.task.name }}</option>
+                                </select>
+                                <input type="hidden" name="task" value="{{ repair.task.id }}">
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Department</label>
+                                <select class="form-select form-select-lg" disabled>
+                                    <option>{{ repair.department.name }}</option>
+                                </select>
+                                <input type="hidden" name="department" value="{{ repair.department.id }}">
+                            </div>
+
+
+                            <div class="mb-4">
+                                <label for="location" class="form-label fw-bold">Location</label>
+                                <input type="text" class="form-control form-control-lg"
+                                    name="location" id="location"
+                                    value="{{ repair.location }}"
+                                    placeholder="Enter repair location" readonly>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="notes" class="form-label fw-bold">Work Notes</label>
+                                <textarea class="form-control form-control-lg"
+                                        name="notes" id="notes"
+                                        rows="4"
+                                        placeholder="Add detailed repair notes..."readonly>{{ repair.notes }}</textarea>
+                            </div>
+                              <div class="mb-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox"
+                                        name="is_completed" id="is_completed"
+                                        role="switch" {% if repair.is_completed %}checked{% endif %}>
+                                    <label class="form-check-label fw-bold" for="is_completed">
+                                        Mark as Completed
+                                    </label>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                            <div class="d-grid gap-3 d-md-flex justify-content-md-end mt-4">
+                                <button type="submit" class="btn btn-lg btn-primary">
+                                    <i class="bi bi-check-circle me-2"></i>Update Repair
+                                </button>
+                            </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

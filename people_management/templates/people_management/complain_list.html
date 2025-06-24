@@ -1,0 +1,195 @@
+{% extends "task_management_system_app/base.html" %}
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Complaints Management</h2>
+        <a href="{% url 'complain_create' %}" class="btn btn-outline-success">
+            <i class="fas fa-plus me-2"></i> Add Complaint
+        </a>
+    </div>
+
+    <!-- Filters Card -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" id="searchInput" class="form-control" placeholder="Search complaints...">
+                        <button class="btn btn-outline-secondary" type="button" id="clearSearch">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select id="statusFilter" class="form-select">
+                        <option value="">All Statuses</option>
+                        <option value="new">New</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="closed">Closed</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex justify-content-end">
+                    <button class="btn btn-outline-primary me-2" id="resetFilters">
+                        <i class="fas fa-sync-alt me-1"></i> Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table  mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th>Location</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Updated</th>
+                            <th>User</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="complaintTable">
+                        {% for complain in complains %}
+                        <tr class="complaint-row align-middle" data-status="{{ complain.status }}">
+                            <td class="fw-semibold">{{ complain.title|truncatechars:30 }}</td>
+                            <td>{{ complain.description|truncatechars:40 }}</td>
+                            <td>{{ complain.location }}</td>
+                            <td>
+                                <span class="badge 
+                                    {% if complain.status == 'new' %}bg-primary
+                                    {% elif complain.status == 'in_progress' %}bg-warning text-dark
+                                    {% elif complain.status == 'resolved' %}bg-success
+                                    {% else %}bg-secondary
+                                    {% endif %}">
+                                    {{ complain.get_status_display }}
+                                </span>
+                            </td>
+                            <td>{{ complain.created_at|date:"Y-m-d H:i" }}</td>
+                            <td>{{ complain.updated_at|date:"Y-m-d H:i" }}</td>
+                            <td>{{ complain.user.username }}</td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{% url 'repair_detail' complain.id %}" class="btn btn-outline-primary" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'update_complain' complain.id %}" class="btn btn-outline-secondary" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'delete_complain' complain.id %}" class="btn btn-outline-danger" title="Delete">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4 text-muted">
+                                <i class="fas fa-inbox fa-2x mb-2"></i><br>
+                                No complaints found.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if complains.paginator.num_pages > 1 %}
+    <div class="d-flex justify-content-center mt-4">
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {% if complains.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ complains.previous_page_number }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for num in complains.paginator.page_range %}
+                    {% if num == complains.number %}
+                        <li class="page-item active" aria-current="page">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                    {% elif num >= complains.number|add:'-2' and num <= complains.number|add:'2' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if complains.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ complains.next_page_number }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Filtering Script -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const statusFilter = document.getElementById('statusFilter');
+        const clearSearch = document.getElementById('clearSearch');
+        const resetFilters = document.getElementById('resetFilters');
+
+        function filterComplaints() {
+            const searchText = searchInput.value.toLowerCase();
+            const selectedStatus = statusFilter.value;
+
+            document.querySelectorAll('.complaint-row').forEach(row => {
+                const rowText = row.innerText.toLowerCase();
+                const rowStatus = row.getAttribute('data-status');
+                const matchesSearch = rowText.includes(searchText);
+                const matchesStatus = !selectedStatus || rowStatus === selectedStatus;
+
+                row.style.display = (matchesSearch && matchesStatus) ? '' : 'none';
+            });
+        }
+
+        function resetAllFilters() {
+            searchInput.value = '';
+            statusFilter.value = '';
+            filterComplaints();
+        }
+
+        // Event listeners
+        searchInput.addEventListener('input', () => setTimeout(filterComplaints, 200));
+        statusFilter.addEventListener('change', filterComplaints);
+        clearSearch.addEventListener('click', () => {
+            searchInput.value = '';
+            filterComplaints();
+        });
+        resetFilters.addEventListener('click', resetAllFilters);
+
+        // Initial filter in case page loads with values
+        filterComplaints();
+    });
+</script>
+
+<style>
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+    .badge {
+        font-size: 0.85em;
+        padding: 0.35em 0.65em;
+    }
+</style>
+{% endblock %}

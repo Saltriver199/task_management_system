@@ -1,0 +1,208 @@
+{% extends "task_management_system_app/base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="mb-4">
+    <h2 class="fw-bold">Welcome, {{ employee.user.get_full_name|default:employee.user.username }} 👋</h2>
+    <p class="text-muted">Here is your current overview</p>
+  </div>
+
+  <div class="row g-4 mb-4">
+    <div class="col-md-4">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-header bg-primary text-white">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0"><i class="fas fa-building me-2"></i> Department</h5>
+            {# This count remains specific to the employee's department #}
+            <span class="badge bg-white text-primary">{{ employee.department.employee_set.count }} members</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <h3 class="card-text">{{ employee.department.name }}</h3>
+          <hr>
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="text-muted">Your Role</h6>
+              <p class="mb-0">
+                {% if employee.user.is_superuser %}
+                  <span class="badge bg-danger text-white">Admin</span>
+                {% else %}
+                  <span class="badge bg-secondary text-white">Member</span>
+                {% endif %}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-header bg-success text-white">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0"><i class="fas fa-tasks me-2"></i> Tasks</h5>
+            {# Display "All Tasks" for admin, "Your Tasks" for others #}
+            <span class="badge bg-white text-success">
+              {% if employee.user.is_superuser %}
+                {{ task_counts.total }} total (All)
+              {% else %}
+                {{ task_counts.total }} total (Your)
+              {% endif %}
+            </span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row text-center mb-3">
+            <div class="col">
+              <h6 class="text-muted">Pending</h6>
+              <h4 class="text-warning">{{ task_counts.pending }}</h4>
+            </div>
+            <div class="col">
+              <h6 class="text-muted">Progress</h6>
+              <h4 class="text-info">{{ task_counts.ready }}</h4>
+            </div>
+            <div class="col">
+              <h6 class="text-muted">Completed</h6>
+              <h4 class="text-success">{{ task_counts.complete }}</h4>
+            </div>
+          </div>
+          <hr>
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="text-muted">Current Task</h6>
+              <p class="mb-0">
+                {% if employee.current_task %}
+                  <span class="badge bg-{{ employee.current_task.status}}">
+                    {{ employee.current_task.name|truncatechars:20 }}
+                  </span>
+                {% else %}
+                  <span class="text-muted">None assigned</span>
+                {% endif %}
+              </p>
+            </div>
+            <div class="text-end">
+              <a href="{% url 'category_list' %}" class="btn btn-sm btn-outline-success">
+                View Tasks <i class="fas fa-chevron-right ms-1"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-header bg-warning text-white">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0"><i class="fas fa-tags me-2"></i> Categories & Issues</h5>
+            {# Display "All Open" for admin, "Your Open" for others #}
+            <span class="badge bg-white text-warning">
+              {% if employee.user.is_superuser %}
+                {{ complaints.count }} open (All)
+              {% else %}
+                {{ complaints.count }} open (Your)
+              {% endif %}
+            </span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <h6 class="text-muted">Default Category</h6>
+            <p class="fs-5">
+              {% if employee.default_category %}
+                <span class="badge bg-success text-white">{{ employee.default_category.name }}</span>
+              {% else %}
+                <span class="text-muted">Not set</span>
+              {% endif %}
+            </p>
+          </div>
+          <hr>
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="text-muted">Recent Complaints</h6>
+              <ul class="list-unstyled mb-0">
+                {# Use the complaints variable directly, as it's filtered/unfiltered in the view #}
+                {% for complaint in complaints|slice:":2" %}
+                  <li>
+                    <span class="badge bg-{{ complaint.status}} mb-1">
+                      {{ complaint.title|truncatechars:20 }}
+                    </span>
+                  </li>
+                {% empty %}
+                  <li class="text-muted">No recent complaints</li>
+                {% endfor %}
+              </ul>
+            </div>
+            <div class="text-end">
+              <a href="{% url 'complain_list' %}" class="btn btn-sm btn-outline-warning mb-2 ">
+                Complaints <i class="fas fa-chevron-right ms-1"></i>
+              </a>
+              <br>
+              <a href="{% url 'category_list' %}" class="btn btn-sm btn-outline-secondary">
+                Categories <i class="fas fa-chevron-right ms-1"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-info text-white">
+      <h5 class="card-title mb-0"><i class="fas fa-chart-bar me-2"></i> Task Overview</h5>
+    </div>
+    <div class="card-body">
+      <canvas id="taskChart" width="100%" height="40"></canvas>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const ctx = document.getElementById("taskChart").getContext("2d");
+  const taskChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Pending', 'Suspend', 'Ready', 'Complete', 'Delete'],
+      datasets: [{
+        label: 'Your Tasks', // This label will remain "Your Tasks" as the chart still reflects the user's filtered view
+        data: [
+          {{ task_counts.pending }},
+          {{ task_counts.suspend }},
+          {{ task_counts.ready }},
+          {{ task_counts.complete }},
+          {{ task_counts.delete }}
+        ],
+        backgroundColor: ['#ffc107', '#6c757d', '#0d6efd', '#198754', '#dc3545'],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+});
+</script>
+
+<style>
+  .card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  }
+  .card-header {
+    border-bottom: none;
+  }
+</style>
+{% endblock %}

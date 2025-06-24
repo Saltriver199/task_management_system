@@ -1,0 +1,315 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | Your Application</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --light-bg: #f8f9fa;
+            --white: #ffffff;
+            --text-color: #343a40;
+            --link-color: var(--primary-color);
+            --link-hover-color: #0056b3;
+            --shadow-medium: rgba(0, 0, 0, 0.15);
+            --shadow-light: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            background-color: var(--light-bg);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            display: flex;
+        }
+
+        .full-height-section {
+            flex: 1;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .image-section {
+            background: url('{% static "images/1.png" %}') center/cover no-repeat;
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        .image-section::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.35);
+        }
+
+        .image-content {
+            z-index: 1;
+            text-align: center;
+            padding: 2rem;
+            max-width: 800px;
+        }
+
+        .login-section {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(1rem, 3vw, 3rem);
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 1rem 3rem var(--shadow-medium);
+            width: 100%;
+            max-width: clamp(300px, 90%, 450px);
+            overflow: hidden;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            background-color: var(--white);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 1.5rem 4rem var(--shadow-medium);
+        }
+
+        .card-header {
+            background-color: var(--white);
+            border-bottom: none;
+            padding: clamp(1.5rem, 4vw, 2.5rem);
+            text-align: center;
+        }
+
+        .card-header h3 {
+            color: var(--text-color);
+            margin: 1rem 0 0.5rem;
+            font-size: clamp(1.5rem, 2.5vw, 2rem);
+        }
+
+        .card-body {
+            padding: clamp(1rem, 3vw, 2rem);
+        }
+
+        .form-floating {
+            margin-bottom: clamp(1rem, 2vw, 1.5rem);
+        }
+
+        .form-control {
+            padding: 1rem 0.75rem;
+            height: auto;
+            border: 1px solid #ced4da;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+        }
+
+        .form-floating > label {
+            padding: 1rem 0.75rem;
+            color: var(--secondary-color);
+            transition: all 0.2s ease;
+        }
+
+        .form-floating > .form-control:not(:placeholder-shown) ~ label,
+        .form-floating > .form-control:focus ~ label {
+            transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+            color: var(--primary-color);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+        }
+
+        .brand-logo {
+            width: clamp(70px, 15vw, 100px);
+            height: clamp(70px, 15vw, 100px);
+            background: linear-gradient(45deg, var(--primary-color), #00aaff);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            font-size: clamp(1.75rem, 4vw, 2.5rem);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            animation: bounceIn 0.8s ease-out;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); opacity: 1; }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); }
+        }
+
+        .card-footer {
+            background-color: var(--white);
+            border-top: none;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        @media (max-width: 991.98px) {
+            .full-height-section {
+                flex-direction: column;
+            }
+
+            .image-section {
+                min-height: 40vh;
+                width: 100%;
+                flex: none;
+            }
+
+            .login-section {
+                padding: 2rem 1rem;
+                min-height: 60vh;
+            }
+
+            .card {
+                margin-top: -3rem;
+                border-radius: 1rem;
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .card {
+                box-shadow: 0 0.5rem 1.5rem var(--shadow-medium);
+            }
+
+            .form-check-label {
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .card-header {
+                padding: 1.5rem 1rem;
+            }
+
+            .card-body {
+                padding: 1.5rem;
+            }
+
+            .btn-primary {
+                padding: 0.75rem;
+                font-size: 0.95rem;
+            }
+
+            .image-content h1 {
+                font-size: clamp(1.5rem, 6vw, 2rem);
+            }
+
+            .image-content p {
+                font-size: clamp(0.8rem, 3vw, 1rem);
+            }
+        }
+
+        @media (min-width: 1600px) {
+            .full-height-section {
+                max-width: 1600px;
+                margin: 0 auto;
+                box-shadow: 0 1rem 3rem var(--shadow-medium);
+            }
+
+            .image-section {
+                border-radius: 1rem 0 0 1rem;
+            }
+
+            .login-section {
+                border-radius: 0 1rem 1rem 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="full-height-section">
+        <div class="image-section d-none d-md-flex">
+            <div class="image-content">
+                <h1 class="fw-bold">Your Application</h1>
+                <p class="lead">Start your journey with us</p>
+            </div>
+        </div>
+
+        <div class="login-section">
+            <div class="card">
+                <div class="card-header">
+                    <div class="brand-logo">
+                        <i class="bi bi-person-plus"></i>
+                    </div>
+                    <h3>Create Account</h3>
+                    <p class="text-muted mb-0">Register to get started</p>
+                </div>
+
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="form-floating">
+                            <input type="text" class="form-control" name="username" 
+                                   id="id_username" placeholder="Username" required>
+                            <label for="id_username"><i class="bi bi-person me-2"></i>Username</label>
+                        </div>
+
+                        <div class="form-floating">
+                            <input type="email" class="form-control" name="email" 
+                                   id="id_email" placeholder="Email" required>
+                            <label for="id_email"><i class="bi bi-envelope me-2"></i>Email</label>
+                        </div>
+
+                        <div class="form-floating">
+                            <input type="password" class="form-control" name="password1" 
+                                   id="id_password1" placeholder="Password" required>
+                            <label for="id_password1"><i class="bi bi-key me-2"></i>Password</label>
+                        </div>
+
+                        <div class="form-floating">
+                            <input type="password" class="form-control" name="password2" 
+                                   id="id_password2" placeholder="Confirm Password" required>
+                            <label for="id_password2"><i class="bi bi-shield-lock me-2"></i>Confirm Password</label>
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-person-check me-2"></i>Register
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card-footer">
+                    <p class="mb-0">Already have an account? 
+                        <a href="{% url 'login' %}" class="text-primary">Login here</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+{% extends 'task_management_system_app/base.html' %} {% load static %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}" />
+
+{% block title %}Employee Dashboard - TaskPro{% endblock %} {% block content %}
+    <div class="col-12">
+      <!-- Assigned Repairs Section -->
+      <div class="row g-4 mt-5">
+        <div class="col-12">
+          <div class="card shadow-lg">
+            <div
+              class="card-header bg-warning text-white py-3 d-flex justify-content-between align-items-center"
+            >
+              <h4 class="mb-0">
+                <i class="fas fa-clipboard-check me-2"></i> Repairs Assigned to
+                You
+              </h4>
+              <small>Total: {{ assigned_repairs|length }}</small>
+            </div>
+            <div class="card-body p-0">
+              {% if assigned_repairs %}
+              <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th scope="col">Repair ID</th>
+                      <th scope="col">Complaint Title</th>
+                      <th scope="col">Compliant Description</th>
+                      <th scope="col">Task</th>
+                      <th scope="col">Department</th>
+                      <th scope="col">Status</th>
+                      <th scope="col">Completed On</th>
+                      <th scope="col">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for repair in assigned_repairs %}
+                    <tr>
+                      <td>{{ repair.id }}</td>
+                      <td>{{ repair.complain.title }}</td>
+                      <td>{{ repair.complain.description|default:"—" }}</td>
+                      <td>
+                        {% if repair.task %} {{ repair.task.name }} {% else %}
+                        <span class="text-muted">—</span>
+                        {% endif %}
+                      </td>
+                      <!-- Department -->
+                      <td>
+                        {% if repair.department %} {{ repair.department.name }}
+                        {% else %}
+                        <span class="text-muted">—</span>
+                        {% endif %}
+                      </td>
+                      <!-- Status: In Progress or Completed -->
+                      <td>
+                        {% if repair.is_completed %}
+                        <span class="badge py-2 px-3 fs-6 bg-success text-light"
+                          >Completed</span
+                        >
+                        {% else %}
+                        <span
+                          class="badge py-2 px-3 fs-6 bg-secondary text-light"
+                          >In Progress</span
+                        >
+                        {% endif %}
+                      </td>
+                      <!-- Completed On -->
+                      <td>
+                        {% if repair.completed_at %} {{repair.completed_at|date:"M d, Y" }} {% else %}
+                        <span class="text-muted">—</span>
+                        {% endif %}
+                      </td>
+                      <!-- Actions: e.g., view or update -->
+                      <td>
+                        <a
+                          href="{% url 'repair_update' repair.id %}"
+                          class="btn btn-sm btn-outline-secondary"
+                        >
+                          <i class="fas fa-edit"></i>
+                        </a>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              {% else %}
+              <div class="p-4 text-center text-muted">
+                <i class="fas fa-tools fa-3x mb-3"></i>
+                <p class="lead">No repairs have been assigned to you.</p>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endblock %}

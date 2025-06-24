@@ -1,0 +1,9 @@
+{% extends "task_management_system_app/base.html" %} {% block content %}
+<h2>Review Leave: {{ leave }}</h2>
+<p>Reason: {{ leave.reason }}</p>
+<form method="post">
+  {% csrf_token %}
+  <button name="action" value="approve" class="btn btn-success">Approve</button>
+  <button name="action" value="reject" class="btn btn-danger">Reject</button>
+</form>
+{% endblock %}

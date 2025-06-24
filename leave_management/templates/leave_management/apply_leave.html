@@ -1,0 +1,279 @@
+{% extends "task_management_system_app/base.html" %}
+{% load static %}
+{% block title %}Apply for Leave{% endblock %}
+<link href="{% static 'css/apply.css' %}" rel="stylesheet" />
+
+{% block content %}
+<div class="container-fluid py-5">
+    <div class="row justify-content-center">
+        <div class="col-xl-10 col-lg-11 col-md-12">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h2 class="mb-0 fw-bold">
+                        <i class="fas fa-calendar-alt me-2"></i> Apply for Leave
+                    </h2>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <form method="post" id="leaveForm" novalidate>
+                        {% csrf_token %}
+                        
+                        {# Leave Type and Date Range in one row #}
+                        <div class="row mb-4 gx-4">
+                            <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
+                                <label for="leave_type" class="form-label fw-semibold">
+                                    <i class="fas fa-list me-2"></i> Leave Type <span class="text-danger">*</span>
+                                </label>
+                                <select name="leave_type" id="leave_type" class="form-select form-select-lg" required>
+                                    <option value="">-- Select Leave Type --</option>
+                                    {% for lt in leave_types %}
+                                        <option value="{{ lt.id }}">{{ lt.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please select a leave type.
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
+                                <label for="start_date" class="form-label fw-semibold">
+                                    <i class="fas fa-calendar-day me-2"></i> Start Date <span class="text-danger">*</span>
+                                </label>
+                                <input type="date" name="start_date" id="start_date" class="form-control form-control-lg" required>
+                                <div class="invalid-feedback">
+                                    Please select a valid start date.
+                                </div>
+                            </div>
+                            <div class="col-lg-4 col-md-6">
+                                <label for="end_date" class="form-label fw-semibold">
+                                    <i class="fas fa-calendar-check me-2"></i> End Date <span class="text-danger">*</span>
+                                </label>
+                                <input type="date" name="end_date" id="end_date" class="form-control form-control-lg" required>
+                                <div class="invalid-feedback">
+                                    Please select a valid end date.
+                                </div>
+                            </div>
+                        </div>
+
+                        {# Duration Display #}
+                        <div class="mb-4">
+                            <div class="alert alert-info d-none fade show" id="durationAlert" role="alert">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Duration:</strong> <span id="durationText"></span>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        </div>
+
+                        {# Reason #}
+                        <div class="mb-4">
+                            <label for="reason" class="form-label fw-semibold">
+                                <i class="fas fa-comment-alt me-2"></i> Reason <span class="text-danger">*</span>
+                            </label>
+                            <textarea name="reason" id="reason" rows="4" class="form-control"
+                                      placeholder="Please provide a detailed reason for your leave request (e.g., medical, family event, personal development)..."
+                                      required minlength="20" maxlength="500"></textarea>
+                            <div class="form-text text-end">
+                                <span id="charCount">0</span>/500 characters
+                            </div>
+                            <div class="invalid-feedback">
+                                Please provide a detailed reason (minimum 20 characters).
+                            </div>
+                        </div>
+
+                        {# Emergency Contact & Work Handover in one row #}
+                        <div class="row mb-5 gx-4">
+                            <div class="col-md-6 mb-4 mb-md-0">
+                                <label for="emergency_contact" class="form-label fw-semibold">
+                                    <i class="fas fa-phone me-2"></i> Emergency Contact (Optional)
+                                </label>
+                                <input type="text" name="emergency_contact" id="emergency_contact"
+                                       class="form-control" placeholder="Name and number of a contact person">
+                                <div class="form-text">
+                                    Person to contact in case of urgent matters during your leave.
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="work_handover" class="form-label fw-semibold">
+                                    <i class="fas fa-tasks me-2"></i> Work Handover Details (Optional)
+                                </label>
+                                <textarea name="work_handover" id="work_handover" rows="3" class="form-control"
+                                          placeholder="Who will cover your tasks? What's the status of ongoing projects?"></textarea>
+                                <div class="form-text">
+                                    Describe how your responsibilities will be handled during your absence.
+                                </div>
+                            </div>
+                        </div>
+
+                        {# Form Actions #}
+                        <div class="d-flex justify-content-between align-items-center border-top pt-4">
+                            <button type="button" class="btn btn-outline-secondary btn-lg" onclick="history.back()">
+                                <i class="fas fa-arrow-left me-2"></i>Back
+                            </button>
+                            <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                                <i class="fas fa-paper-plane me-2"></i>Submit Application
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('leaveForm');
+    const leaveTypeSelect = document.getElementById('leave_type');
+    const startDateInput = document.getElementById('start_date');
+    const endDateInput = document.getElementById('end_date');
+    const reasonTextarea = document.getElementById('reason');
+    const charCount = document.getElementById('charCount');
+    const durationAlert = document.getElementById('durationAlert');
+    const durationText = document.getElementById('durationText');
+    const submitBtn = document.getElementById('submitBtn');
+
+    // Set minimum date to today
+    const today = new Date().toISOString().split('T')[0];
+    startDateInput.setAttribute('min', today);
+    endDateInput.setAttribute('min', today);
+
+    // Character counter for reason textarea
+    reasonTextarea.addEventListener('input', function() {
+        const count = this.value.length;
+        charCount.textContent = count;
+
+        if (count < 20) {
+            charCount.classList.remove('text-success', 'text-warning');
+            charCount.classList.add('text-danger');
+        } else if (count >= 20 && count <= 450) {
+            charCount.classList.remove('text-danger', 'text-warning');
+            charCount.classList.add('text-success');
+        } else if (count > 450 && count <= 500) {
+            charCount.classList.remove('text-danger', 'text-success');
+            charCount.classList.add('text-warning');
+        } else {
+            charCount.classList.remove('text-success', 'text-warning');
+            charCount.classList.add('text-danger');
+        }
+    });
+    // Initialize char count on load if pre-filled
+    reasonTextarea.dispatchEvent(new Event('input'));
+
+    // Date validation and duration calculation
+    function updateDuration() {
+        const startDateVal = startDateInput.value;
+        const endDateVal = endDateInput.value;
+
+        if (startDateVal && endDateVal) {
+            const startDate = new Date(startDateVal);
+            const endDate = new Date(endDateVal);
+
+            // Ensure end date min is start date
+            endDateInput.setAttribute('min', startDateVal);
+            if (endDate < startDate) {
+                durationAlert.classList.add('d-none');
+                return;
+            }
+
+            const timeDiff = endDate.getTime() - startDate.getTime();
+            const dayDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1; // include start day
+
+            durationText.textContent = `${dayDiff} day${dayDiff !== 1 ? 's' : ''}`;
+            durationAlert.classList.remove('d-none', 'alert-warning', 'alert-danger');
+            durationAlert.classList.add('alert-info');
+
+            // Example: extended leave warning
+            if (dayDiff > 5) {
+                durationAlert.classList.remove('alert-info');
+                durationAlert.classList.add('alert-warning');
+                durationText.innerHTML = `${dayDiff} day${dayDiff !== 1 ? 's' : ''} <small class="text-muted">(Extended leave - requires senior management approval)</small>`;
+            }
+
+            // If you have an emergency leave type by ID or value, replace below condition:
+            // if (leaveTypeSelect.value === 'EMERGENCY_LEAVE_VALUE' && dayDiff > 3) { ... }
+            // For now commented out:
+            // if (leaveTypeSelect.value === 'EMERGENCY_LEAVE_VALUE' && dayDiff > 3) {
+            //     durationAlert.classList.remove('alert-info');
+            //     durationAlert.classList.add('alert-danger');
+            //     durationText.innerHTML += ' <small class="text-danger">(Unusually long for emergency leave)</small>';
+            // }
+        } else {
+            durationAlert.classList.add('d-none');
+        }
+    }
+
+    startDateInput.addEventListener('change', function() {
+        endDateInput.setAttribute('min', this.value);
+        if (endDateInput.value && new Date(endDateInput.value) < new Date(this.value)) {
+            endDateInput.value = this.value;
+        }
+        updateDuration();
+    });
+    endDateInput.addEventListener('change', updateDuration);
+    leaveTypeSelect.addEventListener('change', updateDuration);
+
+    // Form validation on submit
+    form.addEventListener('submit', function(e) {
+        // Remove previous invalid states
+        form.querySelectorAll('.is-invalid').forEach(field => {
+            field.classList.remove('is-invalid');
+        });
+
+        let isValid = true;
+        // Leave Type
+        if (!leaveTypeSelect.value) {
+            leaveTypeSelect.classList.add('is-invalid');
+            isValid = false;
+        }
+        // Dates
+        const startVal = startDateInput.value;
+        const endVal = endDateInput.value;
+        const todayDate = new Date(today);
+
+        if (!startVal || new Date(startVal) < todayDate) {
+            startDateInput.classList.add('is-invalid');
+            isValid = false;
+        }
+        if (!endVal || new Date(endVal) < todayDate) {
+            endDateInput.classList.add('is-invalid');
+            isValid = false;
+        }
+        if (startVal && endVal && new Date(endVal) < new Date(startVal)) {
+            endDateInput.classList.add('is-invalid');
+            isValid = false;
+        }
+        // Reason
+        const reasonLen = reasonTextarea.value.trim().length;
+        if (reasonLen < 20 || reasonLen > 500) {
+            reasonTextarea.classList.add('is-invalid');
+            isValid = false;
+        }
+
+        if (!isValid) {
+            e.preventDefault();
+            // Scroll to first invalid
+            const firstInvalid = form.querySelector('.is-invalid');
+            if (firstInvalid) {
+                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstInvalid.focus();
+            }
+        } else {
+            // Optionally show loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
+            // Let the form submit normally
+        }
+    });
+
+    // Reset button state if navigated via back
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit Application';
+            form.querySelectorAll('.is-invalid').forEach(field => {
+                field.classList.remove('is-invalid');
+            });
+            updateDuration();
+        }
+    });
+});
+</script>
+{% endblock %}

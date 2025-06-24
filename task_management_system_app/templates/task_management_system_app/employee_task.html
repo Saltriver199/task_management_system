@@ -1,0 +1,81 @@
+{% extends 'task_management_system_app/base.html' %}
+{% load static %}
+
+{% block title %}Employee Tasks - TaskPro{% endblock %}
+
+{% block content %}
+<div class="table-responsive">
+  {% if tasks %}
+  <table class="table table-hover table-striped mb-0">
+    <thead class="table-light">
+      <tr>
+        <th>Task</th>
+        <th>Category</th>
+        <th>Deadline</th>
+        <th>Time Remaining</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for task in tasks %}
+      <tr>
+        <td>{{ task.name }}</td>
+        <td>{{ task.category.name }}</td>
+        <td>{{ task.deadline|date:"M d, Y H:i"|default:"—" }}</td>
+        <td>
+          {% if task.frequency == 'daily' and task.status != 'complete' %}
+            <span id="countdown_{{ task.id }}" class="badge bg-info">
+              {% if task.remaining_seconds > 0 %}
+                {{ task.remaining_time }}
+              {% else %}
+                Overdue
+              {% endif %}
+            </span>
+          {% else %}
+            <span class="text-muted">—</span>
+          {% endif %}
+        </td>
+        <td>
+          <span class="badge py-2 px-3 fs-6 
+            {% if task.status == 'complete' %}bg-success text-light 
+            {% elif task.status == 'in_progress' %}bg-info text-light 
+            {% elif task.status == 'pending' %}bg-warning text-light 
+            {% elif task.status == 'overdue' %}bg-danger text-light 
+            {% elif task.status == 'suspend' %}bg-secondary text-light 
+            {% elif task.status == 'ready' %}bg-primary text-light 
+            {% else %}bg-dark text-light {% endif %}">
+            {{ task.get_status_display }}
+          </span>
+        </td>
+        <td>
+          <a href="{% url 'employee_update_task_status' task.id %}">
+            <i class="fas fa-edit me-1"></i>
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="p-4 text-center text-muted">
+    <i class="fas fa-box-open fa-3x mb-3"></i>
+    <p class="lead">No tasks assigned to you yet.</p>
+    <a href="#" class="btn btn-outline-primary mt-3">
+      <i class="fas fa-plus-circle me-2"></i>Assign a Task (if applicable)
+    </a>
+  </div>
+  {% endif %}
+</div>
+
+<script src="{% static 'js/timer.js' %}"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    {% for task in tasks %}
+      {% if task.frequency == 'daily' and task.status != 'complete' and task.remaining_seconds > 0 %}
+        startTimer('countdown_{{ task.id }}', {{ task.remaining_seconds }});
+      {% endif %}
+    {% endfor %}
+  });
+</script>
+{% endblock %}
