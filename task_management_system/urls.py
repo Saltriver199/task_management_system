@@ -20,6 +20,8 @@ from people_management import views as people_views
 from people_management.views import CustomPasswordChangeView
 from django.contrib.auth.views import PasswordChangeDoneView
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
